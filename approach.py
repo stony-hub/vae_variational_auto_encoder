@@ -16,9 +16,11 @@ class VAE_model(object):
     def __init__(self, load_name, data_root, data_type, img_size, h1_dim, h2_dim, z_dim, cuda: bool):
         self.load_path = os.path.join('model', load_name + '.pth') if load_name is not None else None
         self.data_root = os.path.join('data', data_root)
+        self.device = 'cuda' if cuda and torch.cuda.is_available() else 'cpu'
+        
         self.data_type = data_type  # should be 'MNIST'
         self.img_size = img_size
-        self.device = 'cuda' if cuda and torch.cuda.is_available() else 'cpu'
+        self.zdim = z_dim
 
         self.vae = VAE_network(img_size * img_size, h1_dim, h2_dim, z_dim).to(self.device)
         print('Model initialized')
@@ -53,7 +55,7 @@ class VAE_model(object):
 
         optimizer = optim.Adam(self.vae.parameters(), lr)
 
-        writer = SummaryWriter(log_dir) if log_dir is not None else None
+        writer = SummaryWriter(os.path.join('log', log_dir)) if log_dir is not None else None
 
         print('Start training from epoch %d to %d' % (start_epoch, niter - 1))
 
@@ -112,7 +114,7 @@ class VAE_model(object):
         path = os.path.join('sample', name + '.png')
         self.vae.eval()
         with torch.no_grad():
-            z = self.randn(number, self.img_size * self.img_size).to(self.device)
-            x, _ = self.vae.decode(z)
+            z = torch.randn(number, self.zdim).to(self.device)
+            x = self.vae.decode(z)
             x = x.view(-1, 1, self.img_size, self.img_size)
             save_image(x, path)
