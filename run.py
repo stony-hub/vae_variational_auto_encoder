@@ -1,8 +1,17 @@
+import os
 import argparse
 from approach import VAE_model
 
 
+def make_dirs(l):
+    for x in l:
+        if not os.path.exists(x):
+            os.mkdir(x)
+
+
 def main():
+    make_dirs(['data', 'model', 'sample', 'log'])
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--load_name', help='name of the state dict to load')
     parser.add_argument('--data_root', default='MNIST', help='data set root')
