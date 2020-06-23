@@ -47,5 +47,5 @@ class VAE_network(nn.Module):
 
     def loss(self, x, re_x, mu, logv):
         recon_err = F.binary_cross_entropy(re_x, x)
-        kl_div = - 0.5 * (logv + 1 - mu.pow(2) - logv.exp()).mean()
+        kl_div = 0.5 * (mu.pow(2) + logv.exp() - 1 - logv).mean()
         return recon_err + kl_div
